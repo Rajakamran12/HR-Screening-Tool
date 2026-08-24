@@ -1,0 +1,4226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HR Screening Tool</title>
+
+  <style>
+    :root{
+      --ink:#19231f;
+      --muted:#68746f;
+      --paper:#f5f1e8;
+      --panel:#fffdf8;
+      --line:#ddd8ca;
+      --green:#176b52;
+      --lime:#d9ed9a;
+      --amber:#e9b949;
+      --red:#bd5b4d;
+      --shadow:0 18px 50px #18352c12
+    }
+
+    *{
+      box-sizing:border-box
+    }
+
+    body{
+      margin:0;
+      color:var(--ink);
+      font:15px/1.5 Georgia,serif;
+      background:
+        radial-gradient(
+          circle at 90% 0,
+          #e2efb9 0 14%,
+          transparent 34%
+        ),
+        var(--paper)
+    }
+
+    button,
+    input,
+    textarea,
+    select{
+      font:inherit
+    }
+
+    button{
+      border:0;
+      border-radius:5px;
+      padding:11px 15px;
+      background:var(--green);
+      color:white;
+      cursor:pointer;
+      font-family:Arial,sans-serif;
+      font-weight:700
+    }
+
+    button:hover{
+      filter:brightness(1.1)
+    }
+
+    button:disabled{
+      opacity:.5;
+      cursor:not-allowed
+    }
+
+    .ghost{
+      background:transparent;
+      color:var(--green);
+      border:1px solid var(--green)
+    }
+
+    .danger{
+      background:var(--red)
+    }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      max-width:1240px;
+      margin:auto;
+      padding:35px 24px 22px
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p{
+      margin-top:0
+    }
+
+    h1{
+      font-size:clamp(34px,5vw,64px);
+      line-height:.95;
+      margin-bottom:10px;
+      letter-spacing:0
+    }
+
+    h2{
+      font-size:25px;
+      margin-bottom:18px
+    }
+
+    h3{
+      margin-bottom:6px
+    }
+
+    .kicker{
+      font:700 11px Arial,sans-serif;
+      text-transform:uppercase;
+      letter-spacing:2px;
+      color:var(--green)
+    }
+
+    .subtle{
+      color:var(--muted)
+    }
+
+    main{
+      max-width:1240px;
+      margin:auto;
+      padding:0 24px 50px
+    }
+
+    .toolbar,
+    .panel,
+    .login-card{
+      background:color-mix(
+        in srgb,
+        var(--panel) 92%,
+        transparent
+      );
+      border:1px solid var(--line);
+      box-shadow:var(--shadow)
+    }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr minmax(250px,390px);
+      gap:20px;
+      padding:20px;
+      margin-bottom:20px
+    }
+
+    .panel{
+      padding:24px;
+      margin:20px 0
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(
+        2,
+        minmax(0,1fr)
+      );
+      gap:16px
+    }
+
+    .full{
+      grid-column:1/-1
+    }
+
+    label{
+      display:block;
+      font:700 12px Arial,sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      margin-bottom:6px;
+      color:var(--muted)
+    }
+
+    input,
+    textarea,
+    select{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fffefa;
+      border-radius:4px;
+      padding:11px;
+      color:var(--ink)
+    }
+
+    textarea{
+      min-height:95px;
+      resize:vertical
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap
+    }
+
+    .status{
+      padding:12px 15px;
+      margin:14px 0;
+      border-left:4px solid var(--green);
+      background:#edf5dc
+    }
+
+    .status.error{
+      border-color:var(--red);
+      background:#fae9e5
+    }
+
+    .hidden{
+      display:none
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px
+    }
+
+    .stat{
+      padding:16px;
+      border-top:4px solid var(--green);
+      background:#f7f4eb
+    }
+
+    .stat strong{
+      display:block;
+      font:700 30px Arial,sans-serif
+    }
+
+    .candidate{
+      border-top:1px solid var(--line);
+      padding:18px 0
+    }
+
+    .candidate:first-child{
+      border-top:0
+    }
+
+    .candidate-head{
+      display:flex;
+      justify-content:space-between;
+      gap:16px
+    }
+
+    .score{
+      font:700 28px Arial,sans-serif;
+      color:var(--green);
+      white-space:nowrap
+    }
+
+    .badge{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:3px;
+      background:var(--lime);
+      font:700 11px Arial,sans-serif;
+      text-transform:uppercase
+    }
+
+    .badge.maybe{
+      background:#f5dfa9
+    }
+
+    .badge.rejected{
+      background:#f4c5bc
+    }
+
+    .badge.review{
+      background:#d7e2ed
+    }
+
+    .details{
+      margin-top:13px;
+      padding:14px;
+      background:#f7f4eb
+    }
+
+    .details p{
+      margin:5px 0
+    }
+
+    .evidence{
+      border-left:3px solid var(--amber);
+      padding-left:10px
+    }
+
+    .empty{
+      text-align:center;
+      color:var(--muted);
+      padding:35px
+    }
+
+    .fine{
+      font:12px/1.4 Arial,sans-serif;
+      color:var(--muted)
+    }
+
+    .login-shell{
+      min-height:calc(100vh - 130px);
+      display:grid;
+      place-items:center;
+      padding:24px
+    }
+
+    .login-card{
+      width:min(440px,100%);
+      padding:32px
+    }
+
+    .login-card h2{
+      font-size:34px
+    }
+
+    .login-card .actions{
+      margin-top:16px
+    }
+
+    .authenticated-only{
+      display:none
+    }
+
+    body.authenticated .authenticated-only{
+      display:block
+    }
+
+    body.authenticated #loginView{
+      display:none
+    }
+
+    /*
+      ------------------------------------------------------------
+      JOB CREATION
+      ------------------------------------------------------------
+    */
+
+    .form-block{
+      border:1px solid #c7def2;
+      border-radius:12px;
+      padding:18px;
+      background:#f7fbff;
+      margin-top:16px
+    }
+
+    .form-block-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:15px;
+      margin-bottom:14px
+    }
+
+    .form-block-title{
+      margin:0;
+      font-size:17px;
+      color:#102b3d
+    }
+
+    .form-block-description{
+      margin:4px 0 0;
+      color:#68746f;
+      font-size:13px
+    }
+
+    .experience-grid{
+      display:grid;
+      grid-template-columns:minmax(180px,280px) 1fr;
+      gap:14px
+    }
+
+    .skill-selector{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:10px;
+      align-items:end
+    }
+
+    .selected-skills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px
+    }
+
+    .skill-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      background:#dff0ff;
+      border:1px solid #9fc9e9;
+      border-radius:7px;
+      color:#075b98;
+      font:700 12px Arial,sans-serif
+    }
+
+    .skill-chip button{
+      width:20px;
+      height:20px;
+      padding:0;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:#fff;
+      color:#126bb0;
+      border:1px solid #9fc9e9;
+      box-shadow:none!important;
+      font-size:13px;
+      line-height:1
+    }
+
+    .custom-skill-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      margin-top:12px
+    }
+
+    .qualification-list{
+      display:grid;
+      gap:9px;
+      margin-top:12px
+    }
+
+    .qualification-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:9px;
+      align-items:center
+    }
+
+    .qualification-row button{
+      padding:9px 12px
+    }
+
+    .no-items{
+      padding:13px;
+      text-align:center;
+      color:#68746f;
+      background:#fff;
+      border:1px dashed #a9cce8;
+      border-radius:7px;
+      font-size:13px
+    }
+
+    /*
+      ------------------------------------------------------------
+      COMMENTED OUT OLD WEIGHTED CRITERIA UI
+      ------------------------------------------------------------
+
+      The previous weighted criteria interface is intentionally
+      commented out.
+
+      It is preserved here so the old implementation is not lost.
+
+      Previous UI:
+
+      <div class="full">
+        <div class="actions" style="justify-content:space-between">
+          <h3>Weighted criteria</h3>
+          <button type="button" class="ghost" id="addCriterion">
+            Add criterion
+          </button>
+        </div>
+
+        <div id="criteria" class="criteria"></div>
+      </div>
+
+      The backend still requires criteria weights, so JavaScript now
+      creates the required backend-compatible criteria automatically.
+      Recruiters no longer need to manage weights manually.
+    */
+
+    /*
+      ------------------------------------------------------------
+      JOB PREVIEW MODAL
+      ------------------------------------------------------------
+    */
+
+    .job-preview-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(8,29,43,.58);
+      display:grid;
+      place-items:center;
+      padding:24px;
+      z-index:1000;
+      backdrop-filter:blur(3px)
+    }
+
+    .job-preview-overlay.hidden{
+      display:none
+    }
+
+    .job-preview-modal{
+      width:min(900px,100%);
+      max-height:min(90vh,850px);
+      overflow:auto;
+      background:#fff;
+      border:1px solid #b7d8f2;
+      border-radius:16px;
+      box-shadow:0 28px 80px rgba(8,29,43,.35)
+    }
+
+    .job-preview-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:20px;
+      padding:24px 28px;
+      border-bottom:1px solid #c7def2;
+      background:#edf7ff;
+      position:sticky;
+      top:0;
+      z-index:2
+    }
+
+    .job-preview-header h2{
+      margin:4px 0 5px;
+      color:#102b3d
+    }
+
+    .job-preview-header .subtle{
+      margin:0
+    }
+
+    .job-preview-close{
+      width:40px;
+      height:40px;
+      padding:0;
+      border-radius:50%;
+      background:#fff!important;
+      color:#126bb0!important;
+      border:1px solid #a9cce8!important;
+      box-shadow:none!important;
+      font-size:24px;
+      line-height:1
+    }
+
+    .job-preview-body{
+      padding:28px
+    }
+
+    .job-preview-section{
+      margin-bottom:25px
+    }
+
+    .job-preview-section:last-child{
+      margin-bottom:0
+    }
+
+    .job-preview-section h3{
+      font-size:15px;
+      color:#075b98;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      margin-bottom:10px
+    }
+
+    .job-preview-description{
+      padding:16px 18px;
+      background:#f7fbff;
+      border:1px solid #c7def2;
+      border-radius:10px;
+      white-space:pre-wrap;
+      line-height:1.65;
+      color:#263d50
+    }
+
+    .job-preview-thresholds{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px
+    }
+
+    .job-preview-threshold{
+      padding:15px 17px;
+      border:1px solid #c7def2;
+      border-radius:10px;
+      background:#f7fbff
+    }
+
+    .job-preview-threshold strong{
+      display:block;
+      font-size:24px;
+      color:#126bb0;
+      margin-top:3px
+    }
+
+    .preview-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px
+    }
+
+    .preview-item{
+      padding:8px 11px;
+      border-radius:7px;
+      background:#e4f2ff;
+      color:#075b98;
+      border:1px solid #b7d8f2;
+      font:700 12px Arial,sans-serif
+    }
+
+    .preview-qualification{
+      padding:12px 14px;
+      background:#f7fbff;
+      border:1px solid #c7def2;
+      border-radius:8px;
+      margin-bottom:9px;
+      color:#263d50
+    }
+
+    .preview-experience{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px
+    }
+
+    .preview-experience-card{
+      padding:16px;
+      border:1px solid #c7def2;
+      border-radius:10px;
+      background:#f7fbff
+    }
+
+    .preview-experience-card strong{
+      display:block;
+      color:#126bb0;
+      font-size:24px;
+      margin-top:3px
+    }
+
+    .job-preview-empty{
+      padding:20px;
+      text-align:center;
+      color:#68746f;
+      background:#f7fbff;
+      border:1px dashed #a9cce8;
+      border-radius:10px
+    }
+
+    /*
+      ------------------------------------------------------------
+      AUTHENTICATED DASHBOARD THEME
+      ------------------------------------------------------------
+    */
+
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      background:
+        linear-gradient(90deg,#18344899,#18344855),
+        url("https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=2200&q=85")
+        center/cover fixed no-repeat
+    }
+
+    body:not(.authenticated)>header{
+      display:none
+    }
+
+    .login-shell{
+      min-height:100vh;
+      padding:24px;
+      display:grid;
+      place-items:center
+    }
+
+    .login-card{
+      width:min(410px,100%);
+      padding:34px 30px 28px;
+      border:0;
+      border-radius:10px;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 24px 70px rgba(8,29,43,.3)
+    }
+
+    .login-card .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      margin-bottom:30px;
+      color:#102b3d;
+      font-weight:800;
+      font-size:22px;
+      letter-spacing:-.6px
+    }
+
+    .brand-mark{
+      width:42px;
+      height:42px;
+      display:grid;
+      place-items:center;
+      border-radius:11px;
+      background:#1976b8;
+      color:white;
+      font-size:24px;
+      font-weight:900;
+      box-shadow:inset 0 -4px 0 #125684
+    }
+
+    .brand-mark:before{
+      content:"R"
+    }
+
+    .login-card h2{
+      margin-bottom:7px;
+      color:#111820;
+      font-size:25px;
+      letter-spacing:-.5px
+    }
+
+    .login-card .subtle{
+      margin-bottom:25px;
+      font-size:14px
+    }
+
+    .login-card label{
+      margin-top:15px;
+      color:#202a32;
+      font-size:12px;
+      letter-spacing:.2px;
+      text-transform:none
+    }
+
+    .input-wrap{
+      position:relative
+    }
+
+    .input-wrap input{
+      padding-left:40px;
+      background:#f4f7f9;
+      border-color:#c5d0d7;
+      border-radius:6px;
+      height:45px
+    }
+
+    .input-icon{
+      position:absolute;
+      left:13px;
+      top:11px;
+      color:#647783;
+      font-style:normal;
+      font-size:17px;
+      z-index:1
+    }
+
+    .login-card .password-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:15px
+    }
+
+    .password-row label{
+      margin:0
+    }
+
+    .forgot{
+      font-size:12px;
+      color:#165c88;
+      text-decoration:none
+    }
+
+    .forgot:hover{
+      text-decoration:underline
+    }
+
+    .login-card .primary-login{
+      width:100%;
+      height:45px;
+      margin-top:25px;
+      background:#1674b5;
+      border-radius:6px;
+      box-shadow:0 5px 12px #1674b544
+    }
+
+    .login-card .primary-login:hover{
+      background:#125e93
+    }
+
+    .login-card .account-link{
+      margin:17px 0 0;
+      text-align:center;
+      font-size:13px;
+      color:#303b43
+    }
+
+    .account-link button{
+      padding:0;
+      border:0;
+      background:none;
+      color:#12669d;
+      font-weight:700;
+      font-family:inherit
+    }
+
+    .login-card .status{
+      margin-top:16px;
+      font-size:13px
+    }
+
+    body.authenticated{
+      background:
+        linear-gradient(
+          180deg,
+          #dceeff 0 26%,
+          #f4f9ff 26% 100%
+        );
+      color:#122338
+    }
+
+    body.authenticated>header{
+      max-width:none;
+      padding:24px clamp(24px,5vw,72px);
+      background:#0d477f;
+      color:#fff;
+      align-items:center;
+      box-shadow:0 7px 0 #62a9e8
+    }
+
+    body.authenticated>header h1{
+      font-size:clamp(30px,4vw,48px);
+      color:#fff;
+      margin:0
+    }
+
+    body.authenticated>header .fine{
+      color:#e4f2ff;
+      display:flex;
+      align-items:center;
+      gap:15px
+    }
+
+    body.authenticated .toolbar,
+    body.authenticated .panel{
+      border:1px solid #c7def2;
+      border-radius:14px;
+      box-shadow:0 16px 36px #174b7f18;
+      background:#fff
+    }
+
+    body.authenticated .panel:nth-of-type(2){
+      background:#eaf5ff;
+      border-color:#b7d8f2
+    }
+
+    body.authenticated .panel:nth-of-type(3){
+      background:#dff0ff;
+      border-color:#afd2ef
+    }
+
+    body.authenticated button{
+      background:#126bb0;
+      box-shadow:
+        0 4px 0 #084879,
+        0 8px 15px #0d477f30;
+      transform:translateY(0);
+      transition:
+        transform .12s,
+        box-shadow .12s
+    }
+
+    body.authenticated button:hover{
+      transform:translateY(-2px);
+      box-shadow:
+        0 6px 0 #084879,
+        0 11px 18px #0d477f40
+    }
+
+    body.authenticated button:active{
+      transform:translateY(2px);
+      box-shadow:
+        0 1px 0 #084879,
+        0 3px 8px #0d477f30
+    }
+
+    body.authenticated .ghost{
+      background:#fff;
+      color:#075b98;
+      border-color:#3c91d0;
+      box-shadow:
+        0 3px 0 #a8c9e4,
+        0 7px 12px #0d477f20
+    }
+
+    body.authenticated input,
+    body.authenticated textarea,
+    body.authenticated select{
+      background:#fff;
+      border-color:#a9cce8;
+      color:#122338
+    }
+
+    body.authenticated .stat{
+      border-radius:10px;
+      background:#fff;
+      box-shadow:0 7px 16px #174b7f12
+    }
+
+    body.authenticated .status{
+      border-radius:8px;
+      box-shadow:0 5px 12px #174b7f12;
+      background:#e4f2ff;
+      color:#124d7e
+    }
+
+    body.authenticated main{
+      padding-top:6px
+    }
+
+    @media(max-width:800px){
+      header{
+        display:block
+      }
+
+      .grid{
+        grid-template-columns:1fr
+      }
+
+      .stats{
+        grid-template-columns:repeat(2,1fr)
+      }
+
+      .candidate-head{
+        display:block
+      }
+
+      .score{
+        margin-top:10px
+      }
+
+      .experience-grid{
+        grid-template-columns:1fr
+      }
+
+      .skill-selector{
+        grid-template-columns:1fr
+      }
+
+      .job-preview-header{
+        padding:20px
+      }
+
+      .job-preview-body{
+        padding:20px
+      }
+    }
+
+    @media(max-width:520px){
+      .login-shell{
+        padding:16px
+      }
+
+      .login-card{
+        padding:28px 22px 24px
+      }
+
+      .job-preview-overlay{
+        padding:10px
+      }
+
+      .job-preview-thresholds,
+      .preview-experience{
+        grid-template-columns:1fr
+      }
+
+      .job-preview-header{
+        padding:18px
+      }
+
+      .job-preview-body{
+        padding:18px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div>
+    <h1>HR Screening Tool</h1>
+  </div>
+
+  <div class="fine authenticated-only">
+    <span id="userEmail"></span>
+    <button class="ghost" id="signOut">Sign out</button>
+  </div>
+</header>
+
+<section id="loginView" class="login-shell">
+  <form id="loginForm" class="login-card">
+
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>HR Screening Tool</span>
+    </div>
+
+    <h2>Welcome to HR Screening Tool</h2>
+
+    <p class="subtle">
+      Sign in to continue to your dashboard.
+    </p>
+
+    <label for="email">
+      Email address
+    </label>
+
+    <div class="input-wrap">
+      <span class="input-icon" aria-hidden="true">
+        &#9993;
+      </span>
+
+      <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        required
+        placeholder="name@company.com"
+      >
+    </div>
+
+    <div class="password-row">
+      <label for="password">
+        Password
+      </label>
+
+      <a
+        class="forgot"
+        href="#"
+        id="forgotPassword"
+      >
+        Forgot password?
+      </a>
+    </div>
+
+    <div class="input-wrap">
+      <span class="input-icon" aria-hidden="true">
+        &#128274;
+      </span>
+
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        required
+        minlength="6"
+        placeholder="Enter your password"
+      >
+    </div>
+
+    <div
+      id="loginError"
+      class="status error hidden"
+      role="alert"
+    ></div>
+
+    <button
+      id="signIn"
+      class="primary-login"
+      type="submit"
+    >
+      Log in to dashboard
+    </button>
+
+    <p class="account-link">
+      Don't have an account?
+      <button
+        id="createAccount"
+        type="button"
+      >
+        Create account
+      </button>
+    </p>
+
+  </form>
+</section>
+
+<main id="appMain" class="authenticated-only">
+
+  <input id="token" type="hidden">
+
+  <div
+    class="actions"
+    style="justify-content:flex-end;margin:20px 0"
+  >
+    <button
+      id="loadJobs"
+      class="ghost"
+    >
+      Refresh jobs
+    </button>
+  </div>
+
+  <div
+    id="status"
+    class="status hidden"
+    role="status"
+  ></div>
+
+  <!-- ==========================================================
+       01 / CREATE JOB
+       ========================================================== -->
+
+  <section class="panel">
+
+    <div class="kicker">
+      01 / Role brief
+    </div>
+
+    <h2>
+      Create a screening job
+    </h2>
+
+    <form id="jobForm">
+
+      <div class="grid">
+
+        <div>
+          <label for="jobId">
+            Job ID
+          </label>
+
+          <input
+            id="jobId"
+            required
+            placeholder="senior-data-engineer"
+          >
+        </div>
+
+        <div>
+          <label for="jobTitle">
+            Title
+          </label>
+
+          <input
+            id="jobTitle"
+            required
+            placeholder="Senior Data Engineer"
+          >
+        </div>
+
+        <div class="full">
+
+          <label for="jobDescription">
+            Job Description
+          </label>
+
+          <textarea
+            id="jobDescription"
+            required
+            placeholder="What does success in this role require?"
+          ></textarea>
+
+        </div>
+
+        <div>
+
+          <label for="shortlisted">
+            Shortlist threshold
+          </label>
+
+          <input
+            id="shortlisted"
+            type="number"
+            min="0"
+            max="100"
+            value="80"
+            required
+          >
+
+        </div>
+
+        <div>
+
+          <label for="maybe">
+            Maybe threshold
+          </label>
+
+          <input
+            id="maybe"
+            type="number"
+            min="0"
+            max="100"
+            value="60"
+            required
+          >
+
+        </div>
+
+        <!-- ======================================================
+             MINIMUM EXPERIENCE
+             ====================================================== -->
+
+        <div class="full">
+
+          <div class="form-block">
+
+            <div class="form-block-header">
+
+              <div>
+                <h3 class="form-block-title">
+                  Minimum Experience
+                </h3>
+
+                <p class="form-block-description">
+                  Define the minimum professional experience expected
+                  for this role.
+                </p>
+              </div>
+
+            </div>
+
+            <div class="experience-grid">
+
+              <div>
+
+                <label for="minimumExperience">
+                  Minimum years
+                </label>
+
+                <input
+                  id="minimumExperience"
+                  type="number"
+                  min="0"
+                  max="50"
+                  step=".5"
+                  value="2"
+                  placeholder="e.g. 3"
+                >
+
+              </div>
+
+              <div>
+
+                <label for="experienceDescription">
+                  Experience requirement
+                </label>
+
+                <input
+                  id="experienceDescription"
+                  placeholder="e.g. Professional experience in AI/ML engineering"
+                >
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ======================================================
+             SKILLS
+             ====================================================== -->
+
+        <div class="full">
+
+          <div class="form-block">
+
+            <div class="form-block-header">
+
+              <div>
+                <h3 class="form-block-title">
+                  Skills
+                </h3>
+
+                <p class="form-block-description">
+                  Choose common skills from the list or add your own
+                  custom skills.
+                </p>
+              </div>
+
+            </div>
+
+            <div class="skill-selector">
+
+              <div>
+
+                <label for="skillSelect">
+                  Select a skill
+                </label>
+
+                <select id="skillSelect">
+                  <option value="">
+                    Choose a skill...
+                  </option>
+
+                  <optgroup label="AI Engineer">
+
+                    <option value="Python">
+                      Python
+                    </option>
+
+                    <option value="Machine Learning">
+                      Machine Learning
+                    </option>
+
+                    <option value="Deep Learning">
+                      Deep Learning
+                    </option>
+
+                    <option value="TensorFlow">
+                      TensorFlow
+                    </option>
+
+                    <option value="PyTorch">
+                      PyTorch
+                    </option>
+
+                    <option value="NLP">
+                      Natural Language Processing
+                    </option>
+
+                    <option value="Computer Vision">
+                      Computer Vision
+                    </option>
+
+                    <option value="Generative AI">
+                      Generative AI
+                    </option>
+
+                    <option value="LLMs">
+                      Large Language Models
+                    </option>
+
+                    <option value="RAG">
+                      Retrieval-Augmented Generation
+                    </option>
+
+                    <option value="Prompt Engineering">
+                      Prompt Engineering
+                    </option>
+
+                    <option value="MLOps">
+                      MLOps
+                    </option>
+
+                  </optgroup>
+
+                  <optgroup label="Data Analyst">
+
+                    <option value="SQL">
+                      SQL
+                    </option>
+
+                    <option value="Microsoft Excel">
+                      Microsoft Excel
+                    </option>
+
+                    <option value="Power BI">
+                      Power BI
+                    </option>
+
+                    <option value="Tableau">
+                      Tableau
+                    </option>
+
+                    <option value="Data Visualization">
+                      Data Visualization
+                    </option>
+
+                    <option value="Statistics">
+                      Statistics
+                    </option>
+
+                    <option value="Data Cleaning">
+                      Data Cleaning
+                    </option>
+
+                    <option value="Data Analysis">
+                      Data Analysis
+                    </option>
+
+                    <option value="Pandas">
+                      Pandas
+                    </option>
+
+                    <option value="Python for Data Analysis">
+                      Python for Data Analysis
+                    </option>
+
+                  </optgroup>
+
+                  <optgroup label="Computer / Software">
+
+                    <option value="Software Development">
+                      Software Development
+                    </option>
+
+                    <option value="Object-Oriented Programming">
+                      Object-Oriented Programming
+                    </option>
+
+                    <option value="Git">
+                      Git
+                    </option>
+
+                    <option value="GitHub">
+                      GitHub
+                    </option>
+
+                    <option value="REST APIs">
+                      REST APIs
+                    </option>
+
+                    <option value="FastAPI">
+                      FastAPI
+                    </option>
+
+                    <option value="Django">
+                      Django
+                    </option>
+
+                    <option value="Java">
+                      Java
+                    </option>
+
+                    <option value="C++">
+                      C++
+                    </option>
+
+                    <option value="JavaScript">
+                      JavaScript
+                    </option>
+
+                    <option value="Cloud Computing">
+                      Cloud Computing
+                    </option>
+
+                    <option value="AWS">
+                      AWS
+                    </option>
+
+                    <option value="Microsoft Azure">
+                      Microsoft Azure
+                    </option>
+
+                    <option value="Docker">
+                      Docker
+                    </option>
+
+                  </optgroup>
+
+                  <optgroup label="Finance">
+
+                    <option value="Financial Analysis">
+                      Financial Analysis
+                    </option>
+
+                    <option value="Financial Modeling">
+                      Financial Modeling
+                    </option>
+
+                    <option value="Financial Reporting">
+                      Financial Reporting
+                    </option>
+
+                    <option value="Budgeting">
+                      Budgeting
+                    </option>
+
+                    <option value="Forecasting">
+                      Forecasting
+                    </option>
+
+                    <option value="Accounting">
+                      Accounting
+                    </option>
+
+                    <option value="Corporate Finance">
+                      Corporate Finance
+                    </option>
+
+                    <option value="Investment Analysis">
+                      Investment Analysis
+                    </option>
+
+                    <option value="Risk Management">
+                      Risk Management
+                    </option>
+
+                    <option value="Taxation">
+                      Taxation
+                    </option>
+
+                  </optgroup>
+
+                  <optgroup label="Chartered Accountant">
+
+                    <option value="Audit">
+                      Audit
+                    </option>
+
+                    <option value="External Audit">
+                      External Audit
+                    </option>
+
+                    <option value="Internal Audit">
+                      Internal Audit
+                    </option>
+
+                    <option value="IFRS">
+                      IFRS
+                    </option>
+
+                    <option value="GAAP">
+                      GAAP
+                    </option>
+
+                    <option value="Tax Compliance">
+                      Tax Compliance
+                    </option>
+
+                    <option value="Financial Statements">
+                      Financial Statements
+                    </option>
+
+                    <option value="Management Accounting">
+                      Management Accounting
+                    </option>
+
+                    <option value="Corporate Tax">
+                      Corporate Tax
+                    </option>
+
+                    <option value="Internal Controls">
+                      Internal Controls
+                    </option>
+
+                    <option value="Accounting Standards">
+                      Accounting Standards
+                    </option>
+
+                  </optgroup>
+
+                </select>
+
+              </div>
+
+              <button
+                type="button"
+                class="ghost"
+                id="addSelectedSkill"
+              >
+                Add Skill
+              </button>
+
+            </div>
+
+            <div
+              id="selectedSkills"
+              class="selected-skills"
+            ></div>
+
+            <div class="custom-skill-row">
+
+              <div>
+
+                <label for="customSkill">
+                  Add your own skill
+                </label>
+
+                <input
+                  id="customSkill"
+                  placeholder="e.g. SAP, Snowflake, LangChain"
+                >
+
+              </div>
+
+              <button
+                type="button"
+                id="addCustomSkill"
+                style="align-self:end"
+              >
+                Add Custom Skill
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ======================================================
+             REQUIRED QUALIFICATIONS
+             ====================================================== -->
+
+        <div class="full">
+
+          <div class="form-block">
+
+            <div class="form-block-header">
+
+              <div>
+                <h3 class="form-block-title">
+                  Required Qualifications
+                </h3>
+
+                <p class="form-block-description">
+                  Add degrees, certifications, professional
+                  qualifications or other mandatory requirements.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="ghost"
+                id="addQualification"
+              >
+                Add Qualification
+              </button>
+
+            </div>
+
+            <div
+              id="qualificationList"
+              class="qualification-list"
+            ></div>
+
+          </div>
+
+        </div>
+
+        <!-- ======================================================
+             OLD WEIGHTED CRITERIA - INTENTIONALLY COMMENTED OUT
+             ====================================================== -->
+
+        <!--
+
+        <div class="full">
+
+          <div
+            class="actions"
+            style="justify-content:space-between"
+          >
+
+            <h3>
+              Weighted criteria
+            </h3>
+
+            <button
+              type="button"
+              class="ghost"
+              id="addCriterion"
+            >
+              Add criterion
+            </button>
+
+          </div>
+
+          <div
+            id="criteria"
+            class="criteria"
+          ></div>
+
+        </div>
+
+        -->
+
+      </div>
+
+      <div
+        class="actions"
+        style="margin-top:18px"
+      >
+
+        <button>
+          Create job
+        </button>
+
+        <span class="fine">
+          Screening requirements are automatically converted into
+          backend-compatible criteria.
+        </span>
+
+      </div>
+
+    </form>
+
+  </section>
+
+  <!-- ============================================================
+       02 / BATCH REVIEW
+       ============================================================ -->
+
+  <section class="panel">
+
+    <div class="kicker">
+      02 / Batch review
+    </div>
+
+    <h2>
+      Screen candidate CVs
+    </h2>
+
+    <form id="uploadForm">
+
+      <div class="grid">
+
+        <div>
+
+          <label for="screenJob">
+            Job
+          </label>
+
+          <div
+            class="actions"
+            style="align-items:stretch"
+          >
+
+            <select
+              id="screenJob"
+              required
+              style="flex:1;min-width:0"
+            >
+              <option value="">
+                Load jobs first
+              </option>
+            </select>
+
+            <button
+              id="previewJob"
+              type="button"
+              class="ghost"
+            >
+              Preview Job
+            </button>
+
+          </div>
+
+        </div>
+
+        <div>
+
+          <label for="files">
+            CV files
+          </label>
+
+          <input
+            id="files"
+            type="file"
+            accept=".pdf,.docx,.txt"
+            multiple
+            required
+          >
+
+        </div>
+
+      </div>
+
+      <div
+        class="actions"
+        style="margin-top:18px"
+      >
+
+        <button id="screenButton">
+          Process batch
+        </button>
+
+        <span
+          id="batchNote"
+          class="fine"
+        >
+          Each file is isolated if parsing or scoring fails.
+        </span>
+
+      </div>
+
+    </form>
+
+  </section>
+
+  <!-- ============================================================
+       03 / HUMAN REVIEW
+       ============================================================ -->
+
+  <section class="panel">
+
+    <div
+      class="actions"
+      style="justify-content:space-between"
+    >
+
+      <div>
+
+        <div class="kicker">
+          03 / Human review
+        </div>
+
+        <h2>
+          Candidate recommendations
+        </h2>
+
+        <p class="subtle">
+          Recommendations support your review. Use an override when
+          your informed decision differs, and record the reason.
+        </p>
+
+      </div>
+
+      <button
+        class="ghost"
+        id="refresh"
+      >
+        Refresh
+      </button>
+
+    </div>
+
+    <div class="stats">
+
+      <div class="stat">
+        <span>Shortlisted</span>
+        <strong id="shortlistedCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <span>Maybe</span>
+        <strong id="maybeCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <span>Rejected</span>
+        <strong id="rejectedCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <span>Needs review</span>
+        <strong id="reviewCount">0</strong>
+      </div>
+
+    </div>
+
+    <div
+      id="candidates"
+      class="empty"
+    >
+      Choose a job to load candidates.
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ==============================================================
+     JOB PREVIEW MODAL
+     ============================================================== -->
+
+<div
+  id="jobPreviewOverlay"
+  class="job-preview-overlay hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="jobPreviewTitle"
+>
+
+  <div class="job-preview-modal">
+
+    <div class="job-preview-header">
+
+      <div>
+
+        <div class="kicker">
+          Saved job preview
+        </div>
+
+        <h2 id="jobPreviewTitle">
+          Job preview
+        </h2>
+
+        <p
+          id="jobPreviewId"
+          class="subtle"
+        ></p>
+
+      </div>
+
+      <button
+        id="closeJobPreview"
+        type="button"
+        class="job-preview-close"
+        aria-label="Close preview"
+      >
+        &times;
+      </button>
+
+    </div>
+
+    <div
+      id="jobPreviewBody"
+      class="job-preview-body"
+    ></div>
+
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+/*
+|--------------------------------------------------------------------------
+| FIREBASE AUTHENTICATION
+|--------------------------------------------------------------------------
+*/
+
+(() => {
+
+  const form =
+    document.getElementById('loginForm');
+
+  const error =
+    document.getElementById('loginError');
+
+  const token =
+    document.getElementById('token');
+
+  const showError = message => {
+
+    error.textContent = message;
+
+    error.classList.toggle(
+      'hidden',
+      !message
+    );
+
+  };
+
+  const authAction = (
+    action,
+    success
+  ) =>
+    action()
+      .then(success)
+      .catch(() =>
+        showError(
+          'Unable to sign in. Check your email and password.'
+        )
+      );
+
+  fetch('/ui-config')
+    .then(response =>
+      response.json()
+    )
+    .then(config => {
+
+      const firebase =
+        config.firebase || {};
+
+      if (
+        !firebase.apiKey ||
+        !firebase.authDomain ||
+        !firebase.projectId ||
+        !firebase.appId
+      ) {
+
+        const unavailable = () =>
+          showError(
+            'Unable to sign in. Please try again later.'
+          );
+
+        form.addEventListener(
+          'submit',
+          event => {
+
+            event.preventDefault();
+
+            unavailable();
+
+          }
+        );
+
+        document.getElementById(
+          'createAccount'
+        ).onclick = unavailable;
+
+        document.getElementById(
+          'forgotPassword'
+        ).onclick = event => {
+
+          event.preventDefault();
+
+          unavailable();
+
+        };
+
+        return;
+      }
+
+      window.firebase.initializeApp(
+        firebase
+      );
+
+      const auth =
+        window.firebase.auth();
+
+      window.hrAuth = auth;
+
+      auth.onAuthStateChanged(
+        async user => {
+
+          if (!user) {
+
+            document.body.classList.remove(
+              'authenticated'
+            );
+
+            return;
+          }
+
+          token.value =
+            await user.getIdToken();
+
+          document.getElementById(
+            'userEmail'
+          ).textContent =
+            user.email || '';
+
+          document.body.classList.add(
+            'authenticated'
+          );
+
+          document.getElementById(
+            'loadJobs'
+          ).click();
+
+        }
+      );
+
+      auth.onIdTokenChanged(
+        async user => {
+
+          if (user) {
+
+            token.value =
+              await user.getIdToken();
+
+          }
+
+        }
+      );
+
+      form.addEventListener(
+        'submit',
+        event => {
+
+          event.preventDefault();
+
+          authAction(
+            () =>
+              auth.signInWithEmailAndPassword(
+                document
+                  .getElementById('email')
+                  .value
+                  .trim(),
+
+                document
+                  .getElementById('password')
+                  .value
+              ),
+
+            showError.bind(
+              null,
+              ''
+            )
+          );
+
+        }
+      );
+
+      document.getElementById(
+        'createAccount'
+      ).onclick = () => {
+
+        authAction(
+          () =>
+            auth.createUserWithEmailAndPassword(
+              document
+                .getElementById('email')
+                .value
+                .trim(),
+
+              document
+                .getElementById('password')
+                .value
+            ),
+
+          showError.bind(
+            null,
+            ''
+          )
+        );
+
+      };
+
+      document.getElementById(
+        'forgotPassword'
+      ).onclick = event => {
+
+        event.preventDefault();
+
+        const email =
+          document
+            .getElementById('email')
+            .value
+            .trim();
+
+        if (!email) {
+
+          showError(
+            'Enter your email address first.'
+          );
+
+          return;
+        }
+
+        authAction(
+          () =>
+            auth.sendPasswordResetEmail(
+              email
+            ),
+
+          () =>
+            showError(
+              'Password reset instructions sent.'
+            )
+        );
+
+      };
+
+    })
+    .catch(() =>
+      showError(
+        'Unable to load Firebase configuration from the server.'
+      )
+    );
+
+})();
+
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD
+|--------------------------------------------------------------------------
+*/
+
+(() => {
+
+  const $ = id =>
+    document.getElementById(id);
+
+  const state = {
+
+    jobs: [],
+
+    candidates: [],
+
+    skills: [],
+
+    qualifications: []
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | API
+  |--------------------------------------------------------------------------
+  */
+
+  const api = async (
+    path,
+    options = {}
+  ) => {
+
+    const token =
+      $('token').value.trim();
+
+    if (!token) {
+
+      throw Error(
+        'Add a Firebase ID token before using the workspace.'
+      );
+
+    }
+
+    const headers =
+      new Headers(
+        options.headers || {}
+      );
+
+    headers.set(
+      'Authorization',
+      `Bearer ${token}`
+    );
+
+    const response =
+      await fetch(
+        path,
+        {
+          ...options,
+          headers
+        }
+      );
+
+    let data = {};
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch {}
+
+    if (!response.ok) {
+
+      throw Error(
+        data.detail ||
+        `Request failed (${response.status}).`
+      );
+
+    }
+
+    return data;
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | STATUS
+  |--------------------------------------------------------------------------
+  */
+
+  const status = (
+    message,
+    error = false
+  ) => {
+
+    $('status').textContent =
+      message;
+
+    $('status').classList.toggle(
+      'hidden',
+      !message
+    );
+
+    $('status').classList.toggle(
+      'error',
+      error
+    );
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ESCAPE HTML
+  |--------------------------------------------------------------------------
+  */
+
+  const escape = value =>
+    String(
+      value ?? ''
+    ).replace(
+      /[&<>"']/g,
+      char =>
+        ({
+          '&':'&amp;',
+          '<':'&lt;',
+          '>':'&gt;',
+          '"':'&quot;',
+          "'":'&#039;'
+        })[char]
+    );
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | SKILLS
+  |--------------------------------------------------------------------------
+  */
+
+  const renderSelectedSkills = () => {
+
+    const container =
+      $('selectedSkills');
+
+    if (!state.skills.length) {
+
+      container.innerHTML = `
+        <div class="no-items">
+          No skills selected yet.
+        </div>
+      `;
+
+      return;
+    }
+
+    container.innerHTML =
+      state.skills
+        .map(
+          (skill, index) => `
+            <span class="skill-chip">
+
+              ${escape(skill)}
+
+              <button
+                type="button"
+                data-remove-skill="${index}"
+                aria-label="Remove ${escape(skill)}"
+              >
+                &times;
+              </button>
+
+            </span>
+          `
+        )
+        .join('');
+
+    container
+      .querySelectorAll(
+        '[data-remove-skill]'
+      )
+      .forEach(button => {
+
+        button.onclick = () => {
+
+          const index =
+            Number(
+              button.dataset.removeSkill
+            );
+
+          state.skills.splice(
+            index,
+            1
+          );
+
+          renderSelectedSkills();
+
+        };
+
+      });
+
+  };
+
+
+  const addSkill = skill => {
+
+    const cleanSkill =
+      String(
+        skill || ''
+      ).trim();
+
+    if (!cleanSkill) {
+
+      return;
+
+    }
+
+    const alreadyExists =
+      state.skills.some(
+        item =>
+          item.toLowerCase() ===
+          cleanSkill.toLowerCase()
+      );
+
+    if (alreadyExists) {
+
+      status(
+        `"${cleanSkill}" is already selected.`,
+        true
+      );
+
+      return;
+
+    }
+
+    state.skills.push(
+      cleanSkill
+    );
+
+    renderSelectedSkills();
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | QUALIFICATIONS
+  |--------------------------------------------------------------------------
+  */
+
+  const renderQualifications = () => {
+
+    const container =
+      $('qualificationList');
+
+    if (!state.qualifications.length) {
+
+      container.innerHTML = `
+        <div class="no-items">
+          No required qualifications added yet.
+        </div>
+      `;
+
+      return;
+    }
+
+    container.innerHTML =
+      state.qualifications
+        .map(
+          (qualification, index) => `
+            <div class="qualification-row">
+
+              <input
+                value="${escape(qualification)}"
+                data-qualification="${index}"
+                placeholder="e.g. Bachelor's degree in Computer Science"
+              >
+
+              <button
+                type="button"
+                class="danger"
+                data-remove-qualification="${index}"
+              >
+                Remove
+              </button>
+
+            </div>
+          `
+        )
+        .join('');
+
+    container
+      .querySelectorAll(
+        '[data-qualification]'
+      )
+      .forEach(input => {
+
+        input.addEventListener(
+          'input',
+          () => {
+
+            const index =
+              Number(
+                input.dataset.qualification
+              );
+
+            state.qualifications[index] =
+              input.value;
+
+          }
+        );
+
+      });
+
+    container
+      .querySelectorAll(
+        '[data-remove-qualification]'
+      )
+      .forEach(button => {
+
+        button.onclick = () => {
+
+          const index =
+            Number(
+              button.dataset.removeQualification
+            );
+
+          state.qualifications.splice(
+            index,
+            1
+          );
+
+          renderQualifications();
+
+        };
+
+      });
+
+  };
+
+
+  const addQualification = (
+    value = ''
+  ) => {
+
+    state.qualifications.push(
+      value
+    );
+
+    renderQualifications();
+
+    const inputs =
+      document.querySelectorAll(
+        '[data-qualification]'
+      );
+
+    const lastInput =
+      inputs[inputs.length - 1];
+
+    if (lastInput) {
+
+      lastInput.focus();
+
+    }
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | BACKEND COMPATIBLE CRITERIA
+  |--------------------------------------------------------------------------
+  |
+  | The existing backend expects criteria with:
+  |
+  |   name
+  |   description
+  |   required
+  |   weight
+  |   minimum_years
+  |
+  | The recruiter no longer sees or manages weights.
+  |
+  | We automatically create backend-compatible criteria and divide
+  | 100 points equally among all generated requirements.
+  |
+  */
+
+  const buildBackendCriteria = () => {
+
+    const criteria = [];
+
+    const minimumExperience =
+      Number(
+        $('minimumExperience').value || 0
+      );
+
+    const experienceDescription =
+      $('experienceDescription')
+        .value
+        .trim();
+
+    if (
+      minimumExperience > 0 ||
+      experienceDescription
+    ) {
+
+      criteria.push({
+        name: 'Minimum Experience',
+        description:
+          experienceDescription ||
+          `Minimum ${minimumExperience} years of professional experience.`,
+        required: true,
+        minimum_years:
+          minimumExperience
+      });
+
+    }
+
+
+    state.skills.forEach(
+      skill => {
+
+        criteria.push({
+          name: `Skill: ${skill}`,
+          description:
+            `Demonstrated professional experience and practical expertise in ${skill}.`,
+          required: true,
+          minimum_years: 0
+        });
+
+      }
+    );
+
+
+    state.qualifications
+      .map(item =>
+        String(item || '').trim()
+      )
+      .filter(Boolean)
+      .forEach(
+        qualification => {
+
+          criteria.push({
+            name:
+              `Qualification: ${qualification}`,
+
+            description:
+              `Candidate must meet the required qualification: ${qualification}.`,
+
+            required: true,
+
+            minimum_years: 0
+
+          });
+
+        }
+      );
+
+
+    if (!criteria.length) {
+
+      throw Error(
+        'Add at least one requirement: minimum experience, skill, or required qualification.'
+      );
+
+    }
+
+
+    /*
+     * Existing backend requires weights totaling 100.
+     *
+     * The recruiter does not manage these weights anymore.
+     * They are distributed equally.
+     */
+
+    const baseWeight =
+      Math.floor(
+        (100 / criteria.length) * 10
+      ) / 10;
+
+    let assigned =
+      0;
+
+    criteria.forEach(
+      (criterion, index) => {
+
+        if (
+          index ===
+          criteria.length - 1
+        ) {
+
+          criterion.weight =
+            Number(
+              (
+                100 - assigned
+              ).toFixed(1)
+            );
+
+        } else {
+
+          criterion.weight =
+            baseWeight;
+
+          assigned +=
+            baseWeight;
+
+        }
+
+      }
+    );
+
+
+    return criteria;
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | JOB PREVIEW DATA
+  |--------------------------------------------------------------------------
+  |
+  | We read the saved backend-compatible criteria and reconstruct the
+  | recruiter-friendly sections from their names.
+  |
+  */
+
+  const extractJobRequirements = job => {
+
+    const criteria =
+      Array.isArray(job.criteria)
+        ? job.criteria
+        : [];
+
+    const experience =
+      criteria.find(
+        criterion =>
+          String(
+            criterion.name || ''
+          ).toLowerCase() ===
+          'minimum experience'
+      );
+
+    const skills =
+      criteria
+        .filter(
+          criterion =>
+            String(
+              criterion.name || ''
+            ).startsWith(
+              'Skill:'
+            )
+        )
+        .map(
+          criterion =>
+            String(
+              criterion.name
+            ).replace(
+              /^Skill:\s*/i,
+              ''
+            )
+        );
+
+    const qualifications =
+      criteria
+        .filter(
+          criterion =>
+            String(
+              criterion.name || ''
+            ).startsWith(
+              'Qualification:'
+            )
+        )
+        .map(
+          criterion =>
+            String(
+              criterion.name
+            ).replace(
+              /^Qualification:\s*/i,
+              ''
+            )
+        );
+
+
+    return {
+      experience,
+      skills,
+      qualifications
+    };
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER JOB PREVIEW
+  |--------------------------------------------------------------------------
+  */
+
+  const renderJobPreview = job => {
+
+    if (!job) {
+
+      $('jobPreviewBody').innerHTML = `
+        <div class="job-preview-empty">
+          No job is selected. Please choose a job first.
+        </div>
+      `;
+
+      $('jobPreviewTitle').textContent =
+        'Job preview';
+
+      $('jobPreviewId').textContent =
+        '';
+
+      return;
+
+    }
+
+
+    const requirements =
+      extractJobRequirements(
+        job
+      );
+
+
+    $('jobPreviewTitle').textContent =
+      job.title ||
+      'Untitled job';
+
+    $('jobPreviewId').textContent =
+      `Job ID: ${job.job_id || '—'}`;
+
+
+    const skillsHtml =
+      requirements.skills.length
+        ? `
+          <div class="preview-list">
+
+            ${requirements.skills
+              .map(
+                skill =>
+                  `<span class="preview-item">${escape(skill)}</span>`
+              )
+              .join('')}
+
+          </div>
+        `
+        : `
+          <div class="job-preview-empty">
+            No skills were specified.
+          </div>
+        `;
+
+
+    const qualificationsHtml =
+      requirements.qualifications.length
+        ? requirements.qualifications
+            .map(
+              qualification =>
+                `<div class="preview-qualification">${escape(qualification)}</div>`
+            )
+            .join('')
+        : `
+          <div class="job-preview-empty">
+            No required qualifications were specified.
+          </div>
+        `;
+
+
+    const experienceHtml =
+      requirements.experience
+        ? `
+          <div class="preview-experience">
+
+            <div class="preview-experience-card">
+
+              <span>
+                Minimum professional experience
+              </span>
+
+              <strong>
+                ${escape(
+                  requirements.experience.minimum_years ??
+                  0
+                )}
+                years
+              </strong>
+
+            </div>
+
+            <div class="preview-experience-card">
+
+              <span>
+                Requirement
+              </span>
+
+              <strong style="font-size:16px;color:#263d50">
+                ${escape(
+                  requirements.experience.description ||
+                  'Professional experience required.'
+                )}
+              </strong>
+
+            </div>
+
+          </div>
+        `
+        : `
+          <div class="job-preview-empty">
+            No minimum experience requirement was specified.
+          </div>
+        `;
+
+
+    $('jobPreviewBody').innerHTML = `
+
+      <section class="job-preview-section">
+
+        <h3>
+          Job Description
+        </h3>
+
+        <div class="job-preview-description">
+
+          ${escape(
+            job.description ||
+            'No job description was saved for this job.'
+          )}
+
+        </div>
+
+      </section>
+
+
+      <section class="job-preview-section">
+
+        <h3>
+          Screening Thresholds
+        </h3>
+
+        <div class="job-preview-thresholds">
+
+          <div class="job-preview-threshold">
+
+            <span>
+              Shortlisted threshold
+            </span>
+
+            <strong>
+
+              ${escape(
+                job.thresholds?.shortlisted ??
+                job.shortlisted_threshold ??
+                '—'
+              )}
+
+              ${
+                job.thresholds?.shortlisted != null ||
+                job.shortlisted_threshold != null
+                  ? '/100'
+                  : ''
+              }
+
+            </strong>
+
+          </div>
+
+
+          <div class="job-preview-threshold">
+
+            <span>
+              Maybe threshold
+            </span>
+
+            <strong>
+
+              ${escape(
+                job.thresholds?.maybe ??
+                job.maybe_threshold ??
+                '—'
+              )}
+
+              ${
+                job.thresholds?.maybe != null ||
+                job.maybe_threshold != null
+                  ? '/100'
+                  : ''
+              }
+
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <section class="job-preview-section">
+
+        <h3>
+          Minimum Experience
+        </h3>
+
+        ${experienceHtml}
+
+      </section>
+
+
+      <section class="job-preview-section">
+
+        <h3>
+          Skills
+        </h3>
+
+        ${skillsHtml}
+
+      </section>
+
+
+      <section class="job-preview-section">
+
+        <h3>
+          Required Qualifications
+        </h3>
+
+        ${qualificationsHtml}
+
+      </section>
+
+    `;
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | OPEN / CLOSE JOB PREVIEW
+  |--------------------------------------------------------------------------
+  */
+
+  const getSelectedJob = () => {
+
+    const jobId =
+      $('screenJob').value;
+
+    if (!jobId) {
+
+      return null;
+
+    }
+
+    return state.jobs.find(
+      job =>
+        job.job_id === jobId
+    ) || null;
+
+  };
+
+
+  const openJobPreview = () => {
+
+    const job =
+      getSelectedJob();
+
+    if (!job) {
+
+      status(
+        'Choose a job first to preview it.',
+        true
+      );
+
+      return;
+
+    }
+
+    renderJobPreview(
+      job
+    );
+
+    $('jobPreviewOverlay')
+      .classList
+      .remove('hidden');
+
+    document.body.style.overflow =
+      'hidden';
+
+  };
+
+
+  const closeJobPreview = () => {
+
+    $('jobPreviewOverlay')
+      .classList
+      .add('hidden');
+
+    document.body.style.overflow =
+      '';
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER JOBS
+  |--------------------------------------------------------------------------
+  */
+
+  const renderJobs = () => {
+
+    $('screenJob').innerHTML =
+      state.jobs.length
+        ? state.jobs
+            .map(
+              job =>
+                `<option value="${escape(job.job_id)}">${escape(job.title)} (${escape(job.job_id)})</option>`
+            )
+            .join('')
+        : '<option value="">No jobs found</option>';
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | CANDIDATE CATEGORY
+  |--------------------------------------------------------------------------
+  */
+
+  const category =
+    candidate =>
+      candidate.score?.review_required
+        ? 'review'
+        : (
+            candidate.override_category ||
+            candidate.categorization?.category ||
+            'review'
+          );
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER CANDIDATES
+  |--------------------------------------------------------------------------
+  */
+
+  const renderCandidates = () => {
+
+    const counts = {
+      shortlisted:0,
+      maybe:0,
+      rejected:0,
+      review:0
+    };
+
+
+    state.candidates.forEach(
+      candidate => {
+
+        const current =
+          category(candidate);
+
+        counts[current] =
+          (
+            counts[current] ||
+            0
+          ) + 1;
+
+      }
+    );
+
+
+    [
+      'shortlisted',
+      'maybe',
+      'rejected',
+      'review'
+    ].forEach(
+      key => {
+
+        $(`${key}Count`)
+          .textContent =
+          counts[key] || 0;
+
+      }
+    );
+
+
+    if (!state.candidates.length) {
+
+      $('candidates').innerHTML =
+        '<div class="empty">No candidates for this job yet.</div>';
+
+      return;
+
+    }
+
+
+    $('candidates').innerHTML =
+      state.candidates
+        .map(
+          candidate => {
+
+            const score =
+              candidate.score || {};
+
+            const profile =
+              candidate.candidate || {};
+
+            const current =
+              category(candidate);
+
+
+            const criteria =
+              (
+                score.criterion_scores ||
+                []
+              )
+                .map(
+                  item => `
+                    <div class="details">
+
+                      <strong>
+
+                        ${escape(
+                          item.criterion_name
+                        )}
+
+                        · ${escape(
+                          item.score
+                        )}/100
+
+                        · ${escape(
+                          item.expertise_level
+                        )}
+
+                      </strong>
+
+                      <p>
+                        ${escape(
+                          item.reasoning
+                        )}
+                      </p>
+
+                      <p class="evidence">
+
+                        ${escape(
+                          (
+                            item.evidence?.evidence ||
+                            []
+                          ).join(' | ') ||
+                          'No source evidence recorded.'
+                        )}
+
+                      </p>
+
+                    </div>
+                  `
+                )
+                .join('');
+
+
+            return `
+
+              <article class="candidate">
+
+                <div class="candidate-head">
+
+                  <div>
+
+                    <span
+                      class="badge ${escape(current)}"
+                    >
+                      ${escape(current)}
+                    </span>
+
+                    <h3>
+
+                      ${escape(
+                        profile.name ||
+                        candidate.filename ||
+                        'Unnamed candidate'
+                      )}
+
+                    </h3>
+
+                    <p class="subtle">
+
+                      ${escape(
+                        candidate.filename ||
+                        ''
+                      )}
+
+                      ${
+                        score.review_required
+                          ? ' · Review required'
+                          : ''
+                      }
+
+                    </p>
+
+                  </div>
+
+
+                  <div class="score">
+
+                    ${escape(
+                      score.overall_score ??
+                      candidate.categorization?.score ??
+                      '—'
+                    )}
+
+                    <small>
+                      /100
+                    </small>
+
+                  </div>
+
+                </div>
+
+
+                <div class="details">
+
+                  <p>
+
+                    <strong>
+                      Assessment:
+                    </strong>
+
+                    ${escape(
+                      score.overall_reasoning ||
+                      'No overall reasoning recorded.'
+                    )}
+
+                  </p>
+
+
+                  <p>
+
+                    <strong>
+                      Strengths:
+                    </strong>
+
+                    ${escape(
+                      (
+                        score.strengths ||
+                        []
+                      ).join(' | ') ||
+                      'None recorded'
+                    )}
+
+                  </p>
+
+
+                  <p>
+
+                    <strong>
+                      Gaps:
+                    </strong>
+
+                    ${escape(
+                      (
+                        score.gaps ||
+                        []
+                      ).join(' | ') ||
+                      'None recorded'
+                    )}
+
+                  </p>
+
+
+                  ${criteria}
+
+                </div>
+
+
+                <div
+                  class="actions"
+                  style="margin-top:12px"
+                >
+
+                  <button
+                    data-override="${escape(candidate.candidate_id)}"
+                  >
+                    Override category
+                  </button>
+
+                  <button
+                    class="ghost"
+                    data-audit="${escape(candidate.candidate_id)}"
+                  >
+                    Audit history
+                  </button>
+
+                  <button
+                    class="danger"
+                    data-delete="${escape(candidate.candidate_id)}"
+                  >
+                    Delete candidate
+                  </button>
+
+                </div>
+
+              </article>
+
+            `;
+
+          }
+        )
+        .join('');
+
+
+    document
+      .querySelectorAll(
+        '[data-override]'
+      )
+      .forEach(
+        button => {
+
+          button.onclick =
+            () =>
+              override(
+                button.dataset.override
+              );
+
+        }
+      );
+
+
+    document
+      .querySelectorAll(
+        '[data-audit]'
+      )
+      .forEach(
+        button => {
+
+          button.onclick =
+            () =>
+              audit(
+                button.dataset.audit
+              );
+
+        }
+      );
+
+
+    document
+      .querySelectorAll(
+        '[data-delete]'
+      )
+      .forEach(
+        button => {
+
+          button.onclick =
+            () =>
+              deleteCandidate(
+                button.dataset.delete
+              );
+
+        }
+      );
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD JOBS
+  |--------------------------------------------------------------------------
+  */
+
+  const loadJobs =
+    async () => {
+
+      try {
+
+        const data =
+          await api(
+            '/jobs/'
+          );
+
+        state.jobs =
+          data.jobs || [];
+
+        renderJobs();
+
+
+        if (state.jobs.length) {
+
+          $('screenJob').value =
+            state.jobs[0].job_id;
+
+          await loadCandidates();
+
+        }
+
+
+        status(
+          `${state.jobs.length} job(s) loaded.`
+        );
+
+      } catch (error) {
+
+        status(
+          error.message,
+          true
+        );
+
+      }
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD CANDIDATES
+  |--------------------------------------------------------------------------
+  */
+
+  const loadCandidates =
+    async () => {
+
+      const jobId =
+        $('screenJob').value;
+
+      if (!jobId) {
+
+        return;
+
+      }
+
+      try {
+
+        status(
+          'Loading candidate recommendations...'
+        );
+
+        const data =
+          await api(
+            `/candidates/job/${encodeURIComponent(jobId)}`
+          );
+
+        state.candidates =
+          data.candidates || [];
+
+        renderCandidates();
+
+        status(
+          `${state.candidates.length} candidate(s) loaded.`
+        );
+
+      } catch (error) {
+
+        status(
+          error.message,
+          true
+        );
+
+      }
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | OVERRIDE
+  |--------------------------------------------------------------------------
+  */
+
+  const override =
+    async id => {
+
+      const newCategory =
+        prompt(
+          'New category: shortlisted, maybe, or rejected'
+        );
+
+      const reason =
+        prompt(
+          'Required reason for the human override'
+        );
+
+
+      if (
+        ![
+          'shortlisted',
+          'maybe',
+          'rejected'
+        ].includes(newCategory) ||
+        !reason?.trim()
+      ) {
+
+        return status(
+          'Override cancelled: valid category and reason are required.',
+          true
+        );
+
+      }
+
+
+      try {
+
+        await api(
+          `/candidates/${encodeURIComponent(id)}/override`,
+          {
+            method:'POST',
+
+            headers:{
+              'Content-Type':
+                'application/json'
+            },
+
+            body:
+              JSON.stringify({
+                new_category:
+                  newCategory,
+
+                actor_id:
+                  'firebase-user',
+
+                reason:
+                  reason.trim()
+              })
+
+          }
+        );
+
+        await loadCandidates();
+
+      } catch (error) {
+
+        status(
+          error.message,
+          true
+        );
+
+      }
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | AUDIT
+  |--------------------------------------------------------------------------
+  */
+
+  const audit =
+    async id => {
+
+      try {
+
+        const data =
+          await api(
+            `/candidates/${encodeURIComponent(id)}/audit`
+          );
+
+        const events =
+          data.audit_events || [];
+
+
+        alert(
+          events.length
+            ? events
+                .map(
+                  item =>
+                    `${item.action || 'override'} by ${
+                      item.actor_id ||
+                      item.performed_by ||
+                      'unknown'
+                    }\n${
+                      item.previous_category ||
+                      'unknown'
+                    } -> ${
+                      item.new_category ||
+                      'unknown'
+                    }\n${
+                      item.reason ||
+                      'No reason recorded.'
+                    }`
+                )
+                .join('\n\n')
+            : 'No audit events yet. An audit entry is created after a recruiter changes this candidate category.'
+        );
+
+      } catch (error) {
+
+        status(
+          error.message,
+          true
+        );
+
+      }
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | DELETE CANDIDATE
+  |--------------------------------------------------------------------------
+  */
+
+  const deleteCandidate =
+    async id => {
+
+      if (
+        !confirm(
+          'Delete this candidate record? This cannot be undone.'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      try {
+
+        await api(
+          `/candidates/${encodeURIComponent(id)}`,
+          {
+            method:'DELETE'
+          }
+        );
+
+        status(
+          'Candidate deleted.'
+        );
+
+        await loadCandidates();
+
+      } catch (error) {
+
+        status(
+          error.message,
+          true
+        );
+
+      }
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | EVENT HANDLERS
+  |--------------------------------------------------------------------------
+  */
+
+  $('loadJobs').onclick =
+    loadJobs;
+
+
+  $('signOut').onclick =
+    () =>
+      window.hrAuth?.signOut();
+
+
+  $('screenJob').onchange =
+    loadCandidates;
+
+
+  $('refresh').onclick =
+    loadCandidates;
+
+
+  $('previewJob').onclick =
+    openJobPreview;
+
+
+  $('closeJobPreview').onclick =
+    closeJobPreview;
+
+
+  $('jobPreviewOverlay').onclick =
+    event => {
+
+      if (
+        event.target ===
+        $('jobPreviewOverlay')
+      ) {
+
+        closeJobPreview();
+
+      }
+
+    };
+
+
+  document.addEventListener(
+    'keydown',
+    event => {
+
+      if (
+        event.key === 'Escape' &&
+        !$('jobPreviewOverlay')
+          .classList
+          .contains('hidden')
+      ) {
+
+        closeJobPreview();
+
+      }
+
+    }
+  );
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ADD PREDEFINED SKILL
+  |--------------------------------------------------------------------------
+  */
+
+  $('addSelectedSkill').onclick =
+    () => {
+
+      const select =
+        $('skillSelect');
+
+      const skill =
+        select.value;
+
+      if (!skill) {
+
+        status(
+          'Choose a skill first.',
+          true
+        );
+
+        return;
+
+      }
+
+      addSkill(
+        skill
+      );
+
+      select.value =
+        '';
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ADD CUSTOM SKILL
+  |--------------------------------------------------------------------------
+  */
+
+  const addCustomSkill =
+    () => {
+
+      const input =
+        $('customSkill');
+
+      const skill =
+        input.value.trim();
+
+      if (!skill) {
+
+        status(
+          'Enter a custom skill first.',
+          true
+        );
+
+        input.focus();
+
+        return;
+
+      }
+
+      addSkill(
+        skill
+      );
+
+      input.value =
+        '';
+
+      input.focus();
+
+    };
+
+
+  $('addCustomSkill').onclick =
+    addCustomSkill;
+
+
+  $('customSkill').addEventListener(
+    'keydown',
+    event => {
+
+      if (
+        event.key === 'Enter'
+      ) {
+
+        event.preventDefault();
+
+        addCustomSkill();
+
+      }
+
+    }
+  );
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ADD QUALIFICATION
+  |--------------------------------------------------------------------------
+  */
+
+  $('addQualification').onclick =
+    () =>
+      addQualification();
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | CREATE JOB
+  |--------------------------------------------------------------------------
+  */
+
+  $('jobForm').onsubmit =
+    async event => {
+
+      event.preventDefault();
+
+
+      try {
+
+        const criteria =
+          buildBackendCriteria();
+
+
+        const body = {
+
+          job_id:
+            $('jobId')
+              .value
+              .trim(),
+
+          title:
+            $('jobTitle')
+              .value
+              .trim(),
+
+          description:
+            $('jobDescription')
+              .value
+              .trim(),
+
+          criteria,
+
+          thresholds:{
+            shortlisted:
+              Number(
+                $('shortlisted')
+                  .value
+              ),
+
+            maybe:
+              Number(
+                $('maybe')
+                  .value
+              )
+          },
+
+          created_by:
+            'firebase-user'
+
+        };
+
+
+        const data =
+          await api(
+            '/jobs/',
+            {
+              method:'POST',
+
+              headers:{
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify(body)
+
+            }
+          );
+
+
+        status(
+          `Job ${data.job.job_id} created.`
+        );
+
+
+        await loadJobs();
+
+
+        $('screenJob').value =
+          data.job.job_id;
+
+
+        /*
+         * Clear custom job requirements after successful creation.
+         */
+
+        state.skills = [];
+
+        state.qualifications = [];
+
+        renderSelectedSkills();
+
+        renderQualifications();
+
+        $('minimumExperience').value =
+          2;
+
+        $('experienceDescription').value =
+          '';
+
+        $('skillSelect').value =
+          '';
+
+        $('customSkill').value =
+          '';
+
+
+      } catch (error) {
+
+        status(
+          error.message,
+          true
+        );
+
+      }
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | BATCH SCREENING
+  |--------------------------------------------------------------------------
+  */
+
+  const waitForBatch =
+    async batchId => {
+
+      for (
+        let attempt = 0;
+        attempt < 360;
+        attempt += 1
+      ) {
+
+        const data =
+          await api(
+            `/bulk-screening/status/${encodeURIComponent(batchId)}`
+          );
+
+        const batch =
+          data.status || {};
+
+
+        status(
+          `Processing ${
+            batch.processed || 0
+          } of ${
+            batch.total || 0
+          } CVs...`
+        );
+
+
+        if (
+          batch.status ===
+          'completed'
+        ) {
+
+          return batch;
+
+        }
+
+
+        if (
+          batch.status ===
+          'failed'
+        ) {
+
+          throw Error(
+            batch.error ||
+            'Batch processing failed.'
+          );
+
+        }
+
+
+        await new Promise(
+          resolve =>
+            setTimeout(
+              resolve,
+              1000
+            )
+        );
+
+      }
+
+
+      throw Error(
+        'Batch processing timed out after 6 minutes. Review the server logs and try again.'
+      );
+
+    };
+
+
+  $('uploadForm').onsubmit =
+    async event => {
+
+      event.preventDefault();
+
+
+      const files =
+        [
+          ...$('files').files
+        ];
+
+      const jobId =
+        $('screenJob').value;
+
+
+      if (!jobId) {
+
+        return status(
+          'Choose a job first.',
+          true
+        );
+
+      }
+
+
+      if (!files.length) {
+
+        return status(
+          'Choose at least one CV.',
+          true
+        );
+
+      }
+
+
+      const button =
+        $('screenButton');
+
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        'Processing...';
+
+
+      try {
+
+        const form =
+          new FormData();
+
+
+        files.forEach(
+          file =>
+            form.append(
+              'files',
+              file
+            )
+        );
+
+
+        const data =
+          await api(
+            `/bulk-screening?job_id=${encodeURIComponent(jobId)}`,
+            {
+              method:'POST',
+              body:form
+            }
+          );
+
+
+        const batchId =
+          data.result?.batch_id;
+
+
+        if (!batchId) {
+
+          throw Error(
+            'The server did not return a batch ID.'
+          );
+
+        }
+
+
+        const result =
+          await waitForBatch(
+            batchId
+          );
+
+
+        const failures =
+          (
+            result.results ||
+            []
+          )
+            .filter(
+              item =>
+                !item.success
+            );
+
+
+        $('batchNote').textContent =
+          failures.length
+            ? `Needs review: ${
+                failures
+                  .map(
+                    item =>
+                      `${item.filename}: ${item.error}`
+                  )
+                  .join(' | ')
+              }`
+            : 'All CVs processed successfully.';
+
+
+        status(
+          `Batch complete. ${
+            result.successful || 0
+          } successful, ${
+            result.failed || 0
+          } failed.`
+        );
+
+
+        await loadCandidates();
+
+
+      } catch (error) {
+
+        $('batchNote').textContent =
+          error.message;
+
+        status(
+          error.message,
+          true
+        );
+
+
+      } finally {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          'Process batch';
+
+      }
+
+    };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | INITIAL UI
+  |--------------------------------------------------------------------------
+  */
+
+  renderSelectedSkills();
+
+  renderQualifications();
+
+})();
+</script>
+
+</body>
+</html>
